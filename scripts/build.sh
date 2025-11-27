@@ -7,6 +7,7 @@ ROOT_DIR="${SCRIPT_DIR%/scripts}"
 DIST_DIR="${ROOT_DIR}/dist"
 
 BINARY_NAME="${BINARY_NAME:-cs}"
+VERSION="${VERSION:-0.0.0}"
 
 TARGETS=(
     "linux:amd64"
@@ -40,13 +41,27 @@ build_target() {
         suffix=".exe"
     fi
 
-    local target_dir="${DIST_DIR}/${os}-${arch}"
-    local output="${target_dir}/${BINARY_NAME}${suffix}"
-
-    mkdir -p "$target_dir"
+    # Create a temporary directory for building
+    local temp_dir=$(mktemp -d)
+    local binary_name="${BINARY_NAME}${suffix}"
+    local output="${temp_dir}/${binary_name}"
 
     echo "==> Building ${os}/${arch} -> ${output}"
     CGO_ENABLED=0 GOOS="$os" GOARCH="$arch" go build -o "$output" "$ROOT_DIR"
+
+    # Create tgz archive with naming convention: cs-cli_<VERSION>_<OS>_<ARCH>.tgz
+    local archive_name="${BINARY_NAME}-cli_${VERSION}_${os}_${arch}.tgz"
+    local archive_path="${DIST_DIR}/${archive_name}"
+
+    echo "==> Creating archive ${archive_path}"
+    cd "$temp_dir"
+    tar -czf "$archive_path" "$binary_name"
+    cd - > /dev/null
+
+    # Cleanup temp directory
+    rm -rf "$temp_dir"
+
+    echo "==> Created ${archive_path}"
 }
 
 main() {
