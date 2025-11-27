@@ -96,11 +96,11 @@ func ConvertToTranslatableError(err error) error {
 	case actionerror.QuotaNotFoundForNameError:
 		return QuotaNotFoundForNameError(e)
 	case actionerror.PasswordGrantTypeLogoutRequiredError:
-		return PasswordGrantTypeLogoutRequiredError(e)
+		return PasswordGrantTypeLogoutRequiredError{}
 	case actionerror.PluginCommandsConflictError:
 		return PluginCommandsConflictError(e)
 	case actionerror.PluginInvalidError:
-		return PluginInvalidError(e)
+		return PluginInvalidError{Err: e.Err}
 	case actionerror.PluginNotFoundError:
 		return PluginNotFoundError(e)
 	case actionerror.ProcessInstanceNotFoundError:
@@ -114,7 +114,7 @@ func ConvertToTranslatableError(err error) error {
 	case actionerror.RepositoryNameTakenError:
 		return RepositoryNameTakenError(e)
 	case actionerror.RepositoryNotRegisteredError:
-		return RepositoryNotRegisteredError(e)
+		return RepositoryNotRegisteredError{Name: e.Name}
 	case actionerror.RevisionNotFoundError:
 		return RevisionNotFoundError(e)
 	case actionerror.RevisionAmbiguousError:
@@ -173,7 +173,7 @@ func ConvertToTranslatableError(err error) error {
 	case ccerror.RequestError:
 		return APIRequestError(e)
 	case ccerror.SSLValidationHostnameError:
-		return SSLCertError(e)
+		return SSLCertError{Message: e.Message}
 	case ccerror.UnverifiedServerError:
 		return InvalidSSLCertError{URL: e.URL, SuggestedCommand: "api"}
 

@@ -10,6 +10,7 @@ import (
 
 	"github.com/SermoDigital/jose/jws"
 
+	"code.cloudfoundry.org/cli/cf"
 	"code.cloudfoundry.org/cli/cf/configuration/coreconfig"
 	"code.cloudfoundry.org/cli/cf/errors"
 	. "code.cloudfoundry.org/cli/cf/i18n"
@@ -253,7 +254,9 @@ func (uaa UAARepository) getAuthToken(data url.Values) error {
 	case errors.HTTPError:
 		return err
 	case *errors.InvalidTokenError:
-		return errors.New(T("Authentication has expired.  Please log back in to re-authenticate.\n\nTIP: Use `cf login -a <endpoint> -u <user> -o <org> -s <space>` to log back in and re-authenticate."))
+		return errors.New(T("Authentication has expired.  Please log back in to re-authenticate.\n\nTIP: Use `{{.Command}} -a <endpoint> -u <user> -o <org> -s <space>` to log back in and re-authenticate.", map[string]interface{}{
+			"Command": cf.Name + " login",
+		}))
 	default:
 		return fmt.Errorf("%s: %s", T("auth request failed"), err.Error())
 	}

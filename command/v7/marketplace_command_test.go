@@ -9,6 +9,7 @@ import (
 	"code.cloudfoundry.org/cli/resources"
 	"code.cloudfoundry.org/cli/util/configv3"
 	"code.cloudfoundry.org/cli/util/ui"
+	"fmt"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -23,6 +24,7 @@ var _ = Describe("marketplace command", func() {
 		fakeConfig      *commandfakes.FakeConfig
 		fakeSharedActor *commandfakes.FakeSharedActor
 		fakeActor       *v7fakes.FakeActor
+		binaryName      string
 	)
 
 	BeforeEach(func() {
@@ -39,6 +41,8 @@ var _ = Describe("marketplace command", func() {
 				Actor:       fakeActor,
 			},
 		}
+		binaryName = "faceman"
+		fakeConfig.BinaryNameReturns(binaryName)
 
 		fakeConfig.TargetedSpaceReturns(configv3.Space{
 			GUID: "fake-space-guid",
@@ -406,7 +410,7 @@ var _ = Describe("marketplace command", func() {
 				Expect(testUI.Out).To(Say(`offering-1\s+plan-1\s+about offering 1\s+service-broker-1`))
 				Expect(testUI.Out).To(Say(`offering-2\s+plan-2, plan-3\s+about offering 2\s+service-broker-2`))
 				Expect(testUI.Out).To(Say(`\n\n`))
-				Expect(testUI.Out).To(Say(`TIP: Use 'cf marketplace -e SERVICE_OFFERING' to view descriptions of individual plans of a given service offering\.`))
+				Expect(testUI.Out).To(Say(fmt.Sprintf(`TIP: Use '%s marketplace -e SERVICE_OFFERING' to view descriptions of individual plans of a given service offering\.`, binaryName)))
 
 				Expect(testUI.Err).To(Say("warning 1"))
 				Expect(testUI.Err).To(Say("warning 2"))
@@ -425,7 +429,7 @@ var _ = Describe("marketplace command", func() {
 					Expect(testUI.Out).To(Say(`offering-1\s+about offering 1\s+service-broker-1`))
 					Expect(testUI.Out).To(Say(`offering-2\s+about offering 2\s+service-broker-2`))
 					Expect(testUI.Out).To(Say(`\n\n`))
-					Expect(testUI.Out).To(Say(`TIP: Use 'cf marketplace -e SERVICE_OFFERING' to view descriptions of individual plans of a given service offering\.`))
+					Expect(testUI.Out).To(Say(fmt.Sprintf(`TIP: Use '%s marketplace -e SERVICE_OFFERING' to view descriptions of individual plans of a given service offering\.`, binaryName)))
 
 					Expect(testUI.Err).To(Say("warning 1"))
 					Expect(testUI.Err).To(Say("warning 2"))

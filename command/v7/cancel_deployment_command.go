@@ -8,7 +8,7 @@ type CancelDeploymentCommand struct {
 	BaseCommand
 
 	RequiredArgs    flag.AppName `positional-args:"yes"`
-	usage           interface{}  `usage:"CF_NAME cancel-deployment APP_NAME\n\nEXAMPLES:\n   cf cancel-deployment my-app"`
+	usage           interface{}  `usage:"CF_NAME cancel-deployment APP_NAME\n\nEXAMPLES:\n   CF_NAME cancel-deployment my-app"`
 	relatedCommands interface{}  `related_commands:"app, push"`
 }
 
@@ -52,6 +52,11 @@ func (cmd *CancelDeploymentCommand) Execute(args []string) error {
 	}
 
 	cmd.UI.DisplayOK()
-	cmd.UI.DisplayText("TIP: Run 'cf app {{.AppName}}' to view app status.", map[string]interface{}{"AppName": cmd.RequiredArgs.AppName})
+	cmd.UI.DisplayText(
+		"TIP: Run '{{.BinaryName}} app {{.AppName}}' to view app status.",
+		map[string]interface{}{
+			"AppName":    cmd.RequiredArgs.AppName,
+			"BinaryName": cmd.Config.BinaryName(),
+		})
 	return nil
 }

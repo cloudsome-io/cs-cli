@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 
+	"code.cloudfoundry.org/cli/cf"
 	"code.cloudfoundry.org/cli/cf/api/environmentvariablegroups"
 	"code.cloudfoundry.org/cli/cf/commandregistry"
 	"code.cloudfoundry.org/cli/cf/configuration/coreconfig"
@@ -66,7 +67,9 @@ func (cmd *SetRunningEnvironmentVariableGroup) Execute(c flags.FlagContext) erro
 		if ok && httpError.ErrorCode() == cf_errors.MessageParseError {
 			suggestionText = T(`
 
-Your JSON string syntax is invalid.  Proper syntax is this:  cf set-running-environment-variable-group '{"name":"value","name":"value"}'`)
+Your JSON string syntax is invalid.  Proper syntax is this:  {{.Command}} '{"name":"value","name":"value"}'`, map[string]interface{}{
+				"Command": fmt.Sprintf("%s set-running-environment-variable-group", cf.Name),
+			})
 		}
 		return errors.New(err.Error() + suggestionText)
 	}

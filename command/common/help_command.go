@@ -208,7 +208,11 @@ func (cmd HelpCommand) displayCommonCommands() {
 	cmd.UI.DisplayNonWrappingTable(sharedaction.CommonCommandsIndent, cmd.globalOptionsTableData(), 25)
 	cmd.UI.DisplayNewline()
 
-	cmd.UI.DisplayTextWithFlavor("TIP: Use '{{.FullHelpCommand}}' to see all commands.", map[string]interface{}{"FullHelpCommand": "cf help -a"})
+	cmd.UI.DisplayTextWithFlavor(
+		"TIP: Use '{{.FullHelpCommand}}' to see all commands.",
+		map[string]interface{}{
+			"FullHelpCommand": fmt.Sprintf("%s help -a", cmd.Config.BinaryName()),
+		})
 }
 
 func (cmd HelpCommand) displayCommand() error {

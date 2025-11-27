@@ -2,6 +2,7 @@ package commands
 
 import (
 	"errors"
+	"fmt"
 	"strconv"
 
 	"code.cloudfoundry.org/cli/api/cloudcontroller/ccversion"
@@ -11,6 +12,7 @@ import (
 	"code.cloudfoundry.org/cli/command"
 	"code.cloudfoundry.org/cli/command/translatableerror"
 
+	"code.cloudfoundry.org/cli/cf"
 	"code.cloudfoundry.org/cli/cf/api/authentication"
 	"code.cloudfoundry.org/cli/cf/api/organizations"
 	"code.cloudfoundry.org/cli/cf/api/spaces"
@@ -213,7 +215,9 @@ func (cmd Login) authenticateSSO(c flags.FlagContext) error {
 
 func (cmd Login) authenticate(c flags.FlagContext) error {
 	if cmd.config.UAAGrantType() == "client_credentials" {
-		return errors.New(T("Service account currently logged in. Use 'cf logout' to log out service account and try again."))
+		return errors.New(T("Service account currently logged in. Use '{{.Command}}' to log out service account and try again.", map[string]interface{}{
+			"Command": fmt.Sprintf("%s logout", cf.Name),
+		}))
 	}
 
 	usernameFlagValue := c.String("u")

@@ -10,6 +10,7 @@ import (
 
 type UnknownCommandError struct {
 	CommandName string
+	BinaryName  string
 	suggestions []string
 }
 
@@ -31,7 +32,12 @@ func (e *UnknownCommandError) Suggest(pluginCommandNames []string) {
 }
 
 func (e UnknownCommandError) Error() string {
-	message := fmt.Sprintf("'%s' is not a registered command. See 'cf help -a'", e.CommandName)
+	helpCommand := "cf help -a"
+	if e.BinaryName != "" {
+		helpCommand = fmt.Sprintf("%s help -a", e.BinaryName)
+	}
+
+	message := fmt.Sprintf("'%s' is not a registered command. See '%s'", e.CommandName, helpCommand)
 
 	if len(e.suggestions) > 0 {
 		message += "\n\nDid you mean?"

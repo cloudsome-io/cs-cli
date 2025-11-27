@@ -70,9 +70,10 @@ func (cmd DeleteCommand) Execute(args []string) error {
 			})
 		case actionerror.RouteBoundToMultipleAppsError:
 			cmd.UI.DeferText(
-				"\nTIP: Run 'cf delete {{.AppName}}' to delete the app and 'cf delete-route' to delete the route.",
+				"\nTIP: Run '{{.BinaryName}} delete {{.AppName}}' to delete the app and '{{.BinaryName}} delete-route' to delete the route.",
 				map[string]interface{}{
-					"AppName": cmd.RequiredArgs.AppName,
+					"AppName":    cmd.RequiredArgs.AppName,
+					"BinaryName": cmd.Config.BinaryName(),
 				},
 			)
 			return err

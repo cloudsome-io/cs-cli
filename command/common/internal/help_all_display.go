@@ -5,7 +5,7 @@ var HelpCategoryList = []HelpCategory{
 		CategoryName: "GETTING STARTED:",
 		CommandList: [][]string{
 			{"help", "version", "login", "logout", "passwd", "target"},
-			{"api", "auth"},
+			{"api", "auth", "account"},
 		},
 	},
 	{

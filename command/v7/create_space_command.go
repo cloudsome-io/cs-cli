@@ -121,10 +121,12 @@ func (cmd CreateSpaceCommand) Execute(args []string) error {
 	}
 	cmd.UI.DisplayOK()
 
-	cmd.UI.DisplayText(`TIP: Use 'cf target -o "{{.Organization}}" -s "{{.Space}}"' to target new space`,
+	cmd.UI.DisplayText(
+		`TIP: Use '{{.BinaryName}} target -o "{{.Organization}}" -s "{{.Space}}"' to target new space`,
 		map[string]interface{}{
 			"Organization": orgName,
 			"Space":        spaceName,
+			"BinaryName":   cmd.Config.BinaryName(),
 		})
 
 	return nil

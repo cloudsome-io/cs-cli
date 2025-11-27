@@ -84,7 +84,7 @@ func (cmd *APICommand) processURL(apiURL string) string {
 func (cmd *APICommand) viewTarget() error {
 	if cmd.Config.Target() == "" {
 		cmd.UI.DisplayText("No API endpoint set. Use '{{.Name}}' to set an endpoint", map[string]interface{}{
-			"Name": "cf api",
+			"Name": fmt.Sprintf("%s api", cmd.Config.BinaryName()),
 		})
 		return nil
 	}

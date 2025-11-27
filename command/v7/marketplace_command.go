@@ -143,7 +143,11 @@ func (cmd MarketplaceCommand) displayOfferingsTable(offerings []v7action.Service
 	cmd.UI.DisplayNewline()
 	cmd.UI.DisplayTableWithHeader("", data, ui.DefaultTableSpacePadding)
 	cmd.UI.DisplayNewline()
-	cmd.UI.DisplayText("TIP: Use 'cf marketplace -e SERVICE_OFFERING' to view descriptions of individual plans of a given service offering.")
+	cmd.UI.DisplayText(
+		"TIP: Use '{{.BinaryName}} marketplace -e SERVICE_OFFERING' to view descriptions of individual plans of a given service offering.",
+		map[string]interface{}{
+			"BinaryName": cmd.Config.BinaryName(),
+		})
 
 	return nil
 }

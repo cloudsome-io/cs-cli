@@ -83,7 +83,9 @@ func (cmd DeletePrivateDomainCommand) Execute(args []string) error {
 
 	cmd.UI.DisplayOK()
 
-	cmd.UI.DisplayText("TIP: Run 'cf domains' to view available domains.")
+	cmd.UI.DisplayText("TIP: Run '{{.BinaryName}} domains' to view available domains.", map[string]interface{}{
+		"BinaryName": cmd.Config.BinaryName(),
+	})
 
 	return nil
 }

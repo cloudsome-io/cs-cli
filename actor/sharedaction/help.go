@@ -78,7 +78,7 @@ type HasExamples interface {
 
 // CommandInfoByName returns the help information for a particular commandName in
 // the commandList.
-func (Actor) CommandInfoByName(commandList interface{}, commandName string) (CommandInfo, error) {
+func (actor Actor) CommandInfoByName(commandList interface{}, commandName string) (CommandInfo, error) {
 	field, found := reflect.TypeOf(commandList).FieldByNameFunc(
 		func(fieldName string) bool {
 			field, _ := reflect.TypeOf(commandList).FieldByName(fieldName)
@@ -87,7 +87,14 @@ func (Actor) CommandInfoByName(commandList interface{}, commandName string) (Com
 	)
 
 	if !found {
-		return CommandInfo{}, actionerror.InvalidCommandError{CommandName: commandName}
+		var binaryName string
+		if actor.Config != nil {
+			binaryName = actor.Config.BinaryName()
+		}
+		return CommandInfo{}, actionerror.InvalidCommandError{
+			CommandName: commandName,
+			BinaryName:  binaryName,
+		}
 	}
 
 	tag := field.Tag

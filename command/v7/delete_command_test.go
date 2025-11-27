@@ -2,6 +2,7 @@ package v7_test
 
 import (
 	"errors"
+	"fmt"
 
 	"code.cloudfoundry.org/cli/actor/actionerror"
 	"code.cloudfoundry.org/cli/actor/v7action"
@@ -107,7 +108,7 @@ var _ = Describe("delete Command", func() {
 			It("defers showing a tip", func() {
 				Expect(testUI.Out).NotTo(Say("TIP"))
 				testUI.FlushDeferred()
-				Expect(testUI.Out).To(Say(`\n\nTIP: Run 'cf delete some-app' to delete the app and 'cf delete-route' to delete the route\.`))
+				Expect(testUI.Out).To(Say(fmt.Sprintf(`\n\nTIP: Run '%s delete some-app' to delete the app and '%s delete-route' to delete the route\.`, binaryName, binaryName)))
 			})
 		})
 	})

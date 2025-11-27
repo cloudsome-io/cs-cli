@@ -40,9 +40,11 @@ func (cmd CreateSharedDomainCommand) Execute(args []string) error {
 	}
 
 	cmd.UI.DisplayOK()
-	cmd.UI.DisplayText("TIP: Domain '{{.Domain}}' is shared with all orgs. Run 'cf domains' to view available domains.",
+	cmd.UI.DisplayText(
+		"TIP: Domain '{{.Domain}}' is shared with all orgs. Run '{{.BinaryName}} domains' to view available domains.",
 		map[string]interface{}{
-			"Domain": domain,
+			"Domain":     domain,
+			"BinaryName": cmd.Config.BinaryName(),
 		})
 	return nil
 }

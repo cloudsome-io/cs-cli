@@ -6,6 +6,7 @@ import (
 	"sort"
 	"strings"
 
+	"code.cloudfoundry.org/cli/cf"
 	"code.cloudfoundry.org/cli/cf/flags"
 	. "code.cloudfoundry.org/cli/cf/i18n"
 
@@ -191,6 +192,8 @@ func (cmd MarketplaceServices) marketplace() error {
 	if paidPlanExists {
 		cmd.ui.Say(T("\n* These service plans have an associated cost. Creating a service instance will incur this cost."))
 	}
-	cmd.ui.Say(T("\nTIP:  Use 'cf marketplace -s SERVICE' to view descriptions of individual plans of a given service."))
+	cmd.ui.Say(T("\nTIP:  Use '{{.Command}}' to view descriptions of individual plans of a given service.", map[string]interface{}{
+		"Command": fmt.Sprintf("%s marketplace -s SERVICE", cf.Name),
+	}))
 	return nil
 }

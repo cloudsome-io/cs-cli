@@ -193,7 +193,10 @@ func (p *CommandParser) handleFlagErrorAndCommandHelp(flagErr *flags.Error, flag
 		if containsHelpFlag(originalArgs) {
 			return p.parse([]string{"help", originalArgs[0]}, commandList)
 		} else {
-			return 0, UnknownCommandError{CommandName: originalArgs[0]}
+			return 0, UnknownCommandError{
+				CommandName: originalArgs[0],
+				BinaryName:  p.Config.BinaryName(),
+			}
 		}
 
 	case flags.ErrCommandRequired:

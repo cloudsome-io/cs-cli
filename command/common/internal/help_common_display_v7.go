@@ -5,7 +5,7 @@ var CommonHelpCategoryList = []HelpCategory{
 		CategoryName: "Before getting started:",
 		CommandList: [][]string{
 			{"config", "login", "target"},
-			{"help", "logout", ""},
+			{"help", "logout", "account"},
 		},
 	},
 

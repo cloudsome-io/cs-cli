@@ -82,7 +82,11 @@ func (cmd *UpdateUserProvidedServiceCommand) Execute(args []string) error {
 	}
 
 	cmd.UI.DisplayOK()
-	cmd.UI.DisplayText("TIP: Use 'cf restage' for any bound apps to ensure your env variable changes take effect")
+	cmd.UI.DisplayText(
+		"TIP: Use '{{.BinaryName}} restage' for any bound apps to ensure your env variable changes take effect",
+		map[string]interface{}{
+			"BinaryName": cmd.Config.BinaryName(),
+		})
 
 	return nil
 }

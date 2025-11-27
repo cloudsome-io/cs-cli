@@ -56,7 +56,7 @@ func (cmd AuthCommand) Execute(args []string) error {
 
 	if !cmd.ClientCredentials {
 		if cmd.Config.UAAGrantType() == string(constant.GrantTypeClientCredentials) {
-			return translatableerror.PasswordGrantTypeLogoutRequiredError{}
+			return translatableerror.PasswordGrantTypeLogoutRequiredError{BinaryName: cmd.Config.BinaryName()}
 		} else if cmd.Config.UAAOAuthClient() != "cf" || cmd.Config.UAAOAuthClientSecret() != "" {
 			return translatableerror.ManualClientCredentialsError{}
 		}

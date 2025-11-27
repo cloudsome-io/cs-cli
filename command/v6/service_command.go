@@ -251,7 +251,10 @@ func (cmd ServiceCommand) displayUpgradeInformation(serviceInstanceSummary v2act
 		"Description": serviceInstanceSummary.ServicePlan.MaintenanceInfo.Description,
 	})
 	cmd.UI.DisplayNewline()
-	cmd.UI.DisplayText("TIP: You can upgrade using 'cf update-service {{.InstanceName}} --upgrade'", map[string]interface{}{
-		"InstanceName": serviceInstanceSummary.Name,
-	})
+	cmd.UI.DisplayText(
+		"TIP: You can upgrade using '{{.BinaryName}} update-service {{.InstanceName}} --upgrade'",
+		map[string]interface{}{
+			"InstanceName": serviceInstanceSummary.Name,
+			"BinaryName":   cmd.Config.BinaryName(),
+		})
 }

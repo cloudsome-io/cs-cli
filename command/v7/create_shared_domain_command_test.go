@@ -2,6 +2,7 @@ package v7_test
 
 import (
 	"errors"
+	"fmt"
 
 	"code.cloudfoundry.org/cli/actor/actionerror"
 	"code.cloudfoundry.org/cli/actor/v7action"
@@ -121,7 +122,7 @@ var _ = Describe("create-shared-domain Command", func() {
 				Expect(testUI.Err).To(Say("warnings-1"))
 				Expect(testUI.Err).To(Say("warnings-2"))
 				Expect(testUI.Out).To(Say("OK"))
-				Expect(testUI.Out).To(Say("TIP: Domain '%s' is shared with all orgs. Run 'cf domains' to view available domains.", domainName))
+				Expect(testUI.Out).To(Say(fmt.Sprintf("TIP: Domain '%s' is shared with all orgs. Run '%s domains' to view available domains.", domainName, binaryName)))
 			})
 
 			It("creates the domain", func() {

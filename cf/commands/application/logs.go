@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	"code.cloudfoundry.org/cli/cf"
 	"code.cloudfoundry.org/cli/cf/api/logs"
 	"code.cloudfoundry.org/cli/cf/commandregistry"
 	"code.cloudfoundry.org/cli/cf/configuration/coreconfig"
@@ -130,7 +131,10 @@ func (cmd *Logs) handleError(err error) error {
 	switch err.(type) {
 	case nil:
 	case *errors.InvalidSSLCert:
-		return errors.New(err.Error() + T("\nTIP: use 'cf login -a API --skip-ssl-validation' or 'cf api API --skip-ssl-validation' to suppress this error"))
+		return errors.New(err.Error() + T("\nTIP: use '{{.LoginCommand}} -a API --skip-ssl-validation' or '{{.APICommand}} API --skip-ssl-validation' to suppress this error", map[string]interface{}{
+			"LoginCommand": cf.Name + " login",
+			"APICommand":   cf.Name + " api",
+		}))
 	default:
 		return err
 	}

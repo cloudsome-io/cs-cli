@@ -2,6 +2,7 @@ package v7_test
 
 import (
 	"errors"
+	"fmt"
 
 	"code.cloudfoundry.org/cli/api/cloudcontroller/ccerror"
 	"code.cloudfoundry.org/cli/command/commandfakes"
@@ -179,7 +180,7 @@ API version:    100.200.300`,
 			It("informs the user that the API endpoint is not set through a tip", func() {
 				Expect(err).ToNot(HaveOccurred())
 
-				Expect(testUI.Out).To(Say("No API endpoint set. Use 'cf api' to set an endpoint"))
+				Expect(testUI.Out).To(Say(fmt.Sprintf("No API endpoint set. Use '%s api' to set an endpoint", fakeConfig.BinaryName())))
 			})
 		})
 

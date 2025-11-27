@@ -45,6 +45,7 @@ type LoginCommand struct {
 	Actor         Actor
 	Config        command.Config
 	ActorReloader ActorReloader
+	Browser       BrowserLauncher
 
 	APIEndpoint       string      `short:"a" description:"API endpoint (e.g. https://api.example.com)"`
 	Organization      string      `short:"o" description:"Org"`
@@ -63,6 +64,7 @@ func (cmd *LoginCommand) Setup(config command.Config, ui command.UI) error {
 	ccClient, _ := shared.NewWrappedCloudControllerClient(config, ui)
 	cmd.Actor = v7action.NewActor(ccClient, config, nil, nil, nil, clock.NewClock())
 	cmd.ActorReloader = ActualActorReloader{}
+	cmd.Browser = DefaultBrowserLauncher{}
 
 	cmd.UI = ui
 	cmd.Config = config
@@ -71,7 +73,7 @@ func (cmd *LoginCommand) Setup(config command.Config, ui command.UI) error {
 
 func (cmd *LoginCommand) Execute(args []string) error {
 	if cmd.Config.UAAGrantType() == string(constant.GrantTypeClientCredentials) {
-		return translatableerror.PasswordGrantTypeLogoutRequiredError{}
+		return translatableerror.PasswordGrantTypeLogoutRequiredError{BinaryName: cmd.Config.BinaryName()}
 	}
 
 	if cmd.Config.UAAOAuthClient() != "cf" || cmd.Config.UAAOAuthClientSecret() != "" {
@@ -114,6 +116,10 @@ func (cmd *LoginCommand) Execute(args []string) error {
 	}
 
 	defer cmd.showStatus()
+
+	if cmd.SSO && cmd.SSOPasscode == "" {
+		cmd.launchBrowserForSSO()
+	}
 
 	var authErr error
 	if cmd.SSO || cmd.SSOPasscode != "" {
@@ -444,6 +450,71 @@ func (cmd *LoginCommand) filterOrgsForSpace(allOrgs []resources.Organization) ([
 	}
 
 	return filteredOrgs, nil
+}
+
+func (cmd *LoginCommand) launchBrowserForSSO() {
+	target := cmd.Config.Target()
+	if target == "" {
+		return
+	}
+
+	uaaURL, err := derivePasscodeURL(target)
+	if err != nil {
+		cmd.UI.DisplayWarning(fmt.Sprintf("Unable to determine single sign-on URL: %s", err))
+		return
+	}
+
+	cmd.UI.DisplayText("Opening your browser to {{.URL}} to continue the single sign-on flow.", map[string]interface{}{
+		"URL": uaaURL,
+	})
+
+	if cmd.Browser == nil {
+		cmd.Browser = DefaultBrowserLauncher{}
+	}
+
+	if err := cmd.Browser.Open(uaaURL); err != nil {
+		cmd.UI.DisplayWarning(fmt.Sprintf("Unable to open browser automatically: %s", err))
+		cmd.UI.DisplayText("If your browser did not open, copy and paste the URL above.")
+	}
+
+	cmd.UI.DisplayNewline()
+	cmd.UI.DisplayText("Follow these steps to finish signing in:")
+	cmd.UI.DisplayText("1. Authenticate in your browser using your organization's identity provider.")
+	cmd.UI.DisplayText("2. Copy the one-time passcode that is displayed after authentication succeeds.")
+	cmd.UI.DisplayText("3. Return to this terminal and paste the passcode when prompted.")
+	cmd.UI.DisplayNewline()
+}
+
+func derivePasscodeURL(apiURL string) (string, error) {
+	if !strings.Contains(apiURL, "://") {
+		apiURL = "https://" + apiURL
+	}
+
+	parsed, err := url.Parse(apiURL)
+	if err != nil {
+		return "", err
+	}
+
+	host := parsed.Hostname()
+	if host == "" {
+		return "", fmt.Errorf("invalid API endpoint: %s", apiURL)
+	}
+
+	baseHost := strings.TrimPrefix(host, "api.")
+	if baseHost == "" {
+		baseHost = host
+	}
+	loginHost := "login." + baseHost
+	if port := parsed.Port(); port != "" {
+		loginHost = loginHost + ":" + port
+	}
+
+	parsed.Host = loginHost
+	parsed.Path = "/passcode"
+	parsed.RawQuery = ""
+	parsed.Fragment = ""
+
+	return parsed.String(), nil
 }
 
 func (cmd *LoginCommand) promptChosenOrg(orgs []resources.Organization) (resources.Organization, error) {

@@ -61,9 +61,11 @@ func (cmd CreateOrgCommand) Execute(args []string) error {
 		cmd.UI.DisplayOK()
 	}
 
-	cmd.UI.DisplayText(`TIP: Use 'cf target -o "{{.Organization}}"' to target new org`,
+	cmd.UI.DisplayText(
+		`TIP: Use '{{.BinaryName}} target -o "{{.Organization}}"' to target new org`,
 		map[string]interface{}{
 			"Organization": orgName,
+			"BinaryName":   cmd.Config.BinaryName(),
 		})
 
 	return nil

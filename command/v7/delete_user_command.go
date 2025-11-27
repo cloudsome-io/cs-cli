@@ -11,7 +11,7 @@ type DeleteUserCommand struct {
 	RequiredArgs    flag.Username `positional-args:"yes"`
 	Force           bool          `short:"f" description:"Prompt interactively for password"`
 	Origin          string        `long:"origin" description:"Origin for mapping a user account to a user in an external identity provider"`
-	usage           interface{}   `usage:"CF_NAME delete-user USERNAME [-f]\n   CF_NAME delete-user USERNAME [--origin ORIGIN]\n\nEXAMPLES:\n   cf delete-user jsmith                   # internal user\n   cf delete-user jsmith --origin ldap     # LDAP user"`
+	usage           interface{}   `usage:"CF_NAME delete-user USERNAME [-f]\n   CF_NAME delete-user USERNAME [--origin ORIGIN]\n\nEXAMPLES:\n   CF_NAME delete-user jsmith                   # internal user\n   CF_NAME delete-user jsmith --origin ldap     # LDAP user"`
 	relatedCommands interface{}   `related_commands:"org-users"`
 }
 

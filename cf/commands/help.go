@@ -4,6 +4,7 @@ import (
 	"errors"
 	"strings"
 
+	"code.cloudfoundry.org/cli/cf"
 	"code.cloudfoundry.org/cli/cf/commandregistry"
 	"code.cloudfoundry.org/cli/cf/configuration/pluginconfig"
 	"code.cloudfoundry.org/cli/cf/flags"
@@ -93,7 +94,7 @@ func (cmd *Help) Execute(c flags.FlagContext) error {
 			}
 
 			if !found {
-				return errors.New("'" + cmdName + "' is not a registered command. See 'cf help -a'")
+				return errors.New("'" + cmdName + "' is not a registered command. See '" + cf.Name + " help -a'")
 			}
 		}
 	}

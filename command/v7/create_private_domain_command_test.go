@@ -2,6 +2,7 @@ package v7_test
 
 import (
 	"errors"
+	"fmt"
 
 	"code.cloudfoundry.org/cli/actor/actionerror"
 	"code.cloudfoundry.org/cli/actor/v7action"
@@ -108,7 +109,7 @@ var _ = Describe("create-private-domain Command", func() {
 				Expect(testUI.Err).To(Say("warnings-1"))
 				Expect(testUI.Err).To(Say("warnings-2"))
 				Expect(testUI.Out).To(Say("OK"))
-				Expect(testUI.Out).To(Say("TIP: Domain '%s' is a private domain. Run 'cf share-private-domain' to share this domain with a different org.", domainName))
+				Expect(testUI.Out).To(Say(fmt.Sprintf("TIP: Domain '%s' is a private domain. Run '%s share-private-domain' to share this domain with a different org.", domainName, binaryName)))
 			})
 
 			It("creates the domain", func() {

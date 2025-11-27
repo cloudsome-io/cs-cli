@@ -1,10 +1,12 @@
 package service
 
 import (
-	"code.cloudfoundry.org/cli/cf/uihelpers"
 	"errors"
 	"fmt"
 	"strings"
+
+	"code.cloudfoundry.org/cli/cf"
+	"code.cloudfoundry.org/cli/cf/uihelpers"
 
 	"code.cloudfoundry.org/cli/cf/actors/planbuilder"
 	"code.cloudfoundry.org/cli/cf/api"
@@ -207,8 +209,8 @@ func printSuccessMessageForServiceInstance(serviceInstanceName string, serviceRe
 		ui.Say(T("{{.State}} in progress. Use '{{.ServicesCommand}}' or '{{.ServiceCommand}}' to check operation status.",
 			map[string]interface{}{
 				"State":           strings.Title(instance.ServiceInstanceFields.LastOperation.Type),
-				"ServicesCommand": terminal.CommandColor("cf services"),
-				"ServiceCommand":  terminal.CommandColor(fmt.Sprintf("cf service %s", serviceInstanceName)),
+				"ServicesCommand": terminal.CommandColor(fmt.Sprintf("%s services", cf.Name)),
+				"ServiceCommand":  terminal.CommandColor(fmt.Sprintf("%s service %s", cf.Name, serviceInstanceName)),
 			}))
 	} else {
 		ui.Ok()

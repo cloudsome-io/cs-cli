@@ -28,8 +28,8 @@ func (cmd *Version) MetaData() commandregistry.CommandMetadata {
 			"CF_NAME version",
 			"\n\n   ",
 			T("'{{.VersionShort}}' and '{{.VersionLong}}' are also accepted.", map[string]string{
-				"VersionShort": "cf -v",
-				"VersionLong":  "cf --version",
+				"VersionShort": fmt.Sprintf("%s -v", cf.Name),
+				"VersionLong":  fmt.Sprintf("%s --version", cf.Name),
 			}),
 		},
 	}

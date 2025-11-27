@@ -166,7 +166,7 @@ var _ = Describe("create-org Command", func() {
 			Expect(testUI.Err).To(Say("quota-warnings-2"))
 			Expect(testUI.Out).To(Say("OK"))
 
-			Expect(testUI.Out).To(Say(`TIP: Use 'cf target -o "%s"' to target new org`, orgName))
+			Expect(testUI.Out).To(Say(fmt.Sprintf(`TIP: Use '%s target -o "%s"' to target new org`, binaryName, orgName)))
 		})
 
 		It("creates the org", func() {

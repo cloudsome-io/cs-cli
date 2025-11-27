@@ -23,6 +23,16 @@ import (
 	. "github.com/onsi/gomega/gbytes"
 )
 
+type fakeBrowserLauncher struct {
+	openArgs []string
+	err      error
+}
+
+func (f *fakeBrowserLauncher) Open(url string) error {
+	f.openArgs = append(f.openArgs, url)
+	return f.err
+}
+
 var _ = Describe("login Command", func() {
 	var (
 		binaryName        string
@@ -120,7 +130,7 @@ var _ = Describe("login Command", func() {
 			})
 
 			It("returns an error", func() {
-				Expect(executeErr).To(MatchError(translatableerror.PasswordGrantTypeLogoutRequiredError{}))
+				Expect(executeErr).To(MatchError(translatableerror.PasswordGrantTypeLogoutRequiredError{BinaryName: binaryName}))
 			})
 		})
 	})
@@ -630,9 +640,15 @@ var _ = Describe("login Command", func() {
 	})
 
 	Describe("SSO Passcode", func() {
-		fakeAPI := "whatever.com"
+		var (
+			fakeAPI     string
+			fakeBrowser *fakeBrowserLauncher
+		)
 		BeforeEach(func() {
+			fakeAPI = "https://api.example.com"
 			fakeConfig.TargetReturns(fakeAPI)
+			fakeBrowser = &fakeBrowserLauncher{}
+			cmd.Browser = fakeBrowser
 
 			_, err := input.Write([]byte("some-passcode\n"))
 			Expect(err).ToNot(HaveOccurred())
@@ -655,6 +671,27 @@ var _ = Describe("login Command", func() {
 				Expect(executeErr).NotTo(HaveOccurred())
 				Expect(fakeActor.GetLoginPromptsCallCount()).To(Equal(1))
 				Expect(testUI.Out).To(Say("some-sso-prompt:"))
+			})
+
+			It("opens a browser to the derived passcode URL and prints instructions", func() {
+				Expect(executeErr).NotTo(HaveOccurred())
+				Expect(fakeBrowser.openArgs).To(HaveLen(1))
+				Expect(fakeBrowser.openArgs[0]).To(Equal("https://login.example.com/passcode"))
+				Expect(testUI.Out).To(Say("Opening your browser to https://login.example.com/passcode"))
+				Expect(testUI.Out).To(Say("Follow these steps to finish signing in:"))
+				Expect(testUI.Out).To(Say("Copy the one-time passcode"))
+			})
+
+			When("opening the browser fails", func() {
+				BeforeEach(func() {
+					fakeBrowser.err = errors.New("no-browser")
+				})
+
+				It("warns the user", func() {
+					Expect(executeErr).NotTo(HaveOccurred())
+					Expect(testUI.Err).To(Say("Unable to open browser automatically: no-browser"))
+					Expect(testUI.Out).To(Say("If your browser did not open, copy and paste the URL above."))
+				})
 			})
 
 			It("authenticates with the inputted code", func() {

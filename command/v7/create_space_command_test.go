@@ -2,6 +2,7 @@ package v7_test
 
 import (
 	"errors"
+	"fmt"
 
 	"code.cloudfoundry.org/cli/actor/actionerror"
 	"code.cloudfoundry.org/cli/actor/v7action"
@@ -363,7 +364,7 @@ var _ = Describe("create-space Command", func() {
 			Expect(testUI.Out).To(Say("OK")) // assign spaceManager
 			Expect(testUI.Out).To(Say("OK")) // assign spaceDeveloper
 
-			Expect(testUI.Out).To(Say(`TIP: Use 'cf target -o "%s" -s "%s"' to target new space`, "some-org-name", spaceName))
+			Expect(testUI.Out).To(Say(fmt.Sprintf(`TIP: Use '%s target -o "%s" -s "%s"' to target new space`, binaryName, "some-org-name", spaceName)))
 		})
 	})
 })

@@ -6,8 +6,14 @@ import "fmt"
 // with an invalid command.
 type InvalidCommandError struct {
 	CommandName string
+	BinaryName  string
 }
 
 func (err InvalidCommandError) Error() string {
-	return fmt.Sprintf("'%s' is not a registered command. See 'cf help -a'", err.CommandName)
+	binaryName := err.BinaryName
+	if binaryName == "" {
+		binaryName = "cf"
+	}
+
+	return fmt.Sprintf("'%s' is not a registered command. See '%s help -a'", err.CommandName, binaryName)
 }

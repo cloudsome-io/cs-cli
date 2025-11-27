@@ -53,9 +53,11 @@ func (cmd CreatePrivateDomainCommand) Execute(args []string) error {
 
 	cmd.UI.DisplayOK()
 
-	cmd.UI.DisplayText("TIP: Domain '{{.Domain}}' is a private domain. Run 'cf share-private-domain' to share this domain with a different org.",
+	cmd.UI.DisplayText(
+		"TIP: Domain '{{.Domain}}' is a private domain. Run '{{.BinaryName}} share-private-domain' to share this domain with a different org.",
 		map[string]interface{}{
-			"Domain": domain,
+			"Domain":     domain,
+			"BinaryName": cmd.Config.BinaryName(),
 		})
 	return nil
 }
