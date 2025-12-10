@@ -46,8 +46,25 @@ build_target() {
     local binary_name="${BINARY_NAME}${suffix}"
     local output="${temp_dir}/${binary_name}"
 
+    # Calculate build metadata
+    local build_sha="${CF_BUILD_SHA:-$(git rev-parse --short HEAD 2>/dev/null || echo "")}"
+    local build_date="${CF_BUILD_DATE:-$(date -u +"%Y-%m-%d")}"
+    
+    # Build linker flags
+    local ld_flags="-w -s"
+    if [[ -n "$build_sha" ]]; then
+        ld_flags="$ld_flags -X code.cloudfoundry.org/cli/version.binarySHA=$build_sha"
+    fi
+    if [[ -n "$build_date" ]]; then
+        ld_flags="$ld_flags -X code.cloudfoundry.org/cli/version.binaryBuildDate=$build_date"
+    fi
+    if [[ -n "$VERSION" && "$VERSION" != "0.0.0" ]]; then
+        ld_flags="$ld_flags -X code.cloudfoundry.org/cli/version.binaryVersion=$VERSION"
+    fi
+
     echo "==> Building ${os}/${arch} -> ${output}"
-    CGO_ENABLED=0 GOOS="$os" GOARCH="$arch" go build -o "$output" "$ROOT_DIR"
+    echo "==> Version: ${VERSION}, SHA: ${build_sha}, Date: ${build_date}"
+    CGO_ENABLED=0 GOOS="$os" GOARCH="$arch" go build -ldflags "$ld_flags" -o "$output" "$ROOT_DIR"
 
     # Create tgz archive with naming convention: cs-cli_<VERSION>_<OS>_<ARCH>.tgz
     local archive_name="${BINARY_NAME}-cli_${VERSION}_${os}_${arch}.tgz"

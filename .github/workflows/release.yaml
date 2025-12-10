@@ -34,6 +34,8 @@ jobs:
           # Extract version from tag (remove 'v' prefix if present)
           VERSION="${GITHUB_REF_NAME#v}"
           export VERSION
+          export CF_BUILD_SHA="${GITHUB_SHA:0:7}"
+          export CF_BUILD_DATE=$(date -u +"%Y-%m-%d")
           ./scripts/build.sh
 
       - name: Generate changelog
