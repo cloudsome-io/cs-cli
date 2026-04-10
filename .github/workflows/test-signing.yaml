@@ -80,38 +80,56 @@ jobs:
 
           security list-keychain -d user -s "$KEYCHAIN_PATH"
 
-      - name: Sign macOS binaries
+      - name: Sign and notarize macOS binaries
         env:
           SIGNING_KEY_MAC_ID: ${{ secrets.SIGNING_KEY_MAC_ID }}
-        run: |
-          for binary in dist/*darwin*; do
-            [ -f "$binary" ] || continue
-            echo "Signing $binary"
-            codesign \
-              --force \
-              --options runtime \
-              --sign "$SIGNING_KEY_MAC_ID" \
-              --timestamp \
-              "$binary"
-            codesign --verify --verbose "$binary"
-            echo "OK: $binary"
-          done
-
-      - name: Notarize macOS binaries
-        if: ${{ inputs.skip_notarization == 'false' }}
-        env:
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          SKIP_NOTARIZATION: ${{ inputs.skip_notarization }}
         run: |
-          for binary in dist/*darwin*; do
-            [ -f "$binary" ] || continue
-            echo "Notarizing $binary"
-            xcrun notarytool submit "$binary" \
-              --apple-id "$APPLE_ID" \
-              --password "$APPLE_APP_SPECIFIC_PASSWORD" \
-              --team-id "$APPLE_TEAM_ID" \
-              --wait
+          WORK_DIR="$RUNNER_TEMP/signing"
+          mkdir -p "$WORK_DIR"
+
+          for archive in dist/*darwin*.tgz; do
+            [ -f "$archive" ] || continue
+            BASENAME=$(basename "$archive" .tgz)
+            EXTRACT_DIR="$WORK_DIR/$BASENAME"
+            mkdir -p "$EXTRACT_DIR"
+
+            echo "==> Extracting $archive"
+            tar -xzf "$archive" -C "$EXTRACT_DIR"
+
+            # Sign each Mach-O binary inside the archive
+            for binary in "$EXTRACT_DIR"/*; do
+              [ -f "$binary" ] || continue
+              echo "    Signing $binary"
+              codesign \
+                --force \
+                --options runtime \
+                --sign "$SIGNING_KEY_MAC_ID" \
+                --timestamp \
+                "$binary"
+              codesign --verify --verbose "$binary"
+            done
+
+            # Repack the archive
+            echo "==> Repacking $archive"
+            tar -czf "$archive" -C "$EXTRACT_DIR" .
+
+            if [ "$SKIP_NOTARIZATION" = "false" ]; then
+              # notarytool requires .zip
+              ZIP_PATH="$WORK_DIR/$BASENAME.zip"
+              zip -j "$ZIP_PATH" "$EXTRACT_DIR"/*
+              echo "==> Notarizing $archive"
+              xcrun notarytool submit "$ZIP_PATH" \
+                --apple-id "$APPLE_ID" \
+                --password "$APPLE_APP_SPECIFIC_PASSWORD" \
+                --team-id "$APPLE_TEAM_ID" \
+                --wait
+            fi
+
+            rm -rf "$EXTRACT_DIR"
           done
 
       - name: Upload signed binaries as artifact
